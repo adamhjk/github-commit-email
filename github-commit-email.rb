@@ -89,6 +89,7 @@ EOH
         end
       rescue 
         body << "Cannot fetch diff!\n\n#{$!}"
+        Merb.logger.debug("Exception: #{$!}")
       end
       m = Merb::Mailer.new(
             :to => Merb::Config[:mailto],
