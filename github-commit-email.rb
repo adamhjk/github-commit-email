@@ -23,7 +23,7 @@ require 'open-uri'
 
 Merb::Config.use { |c|
   c[:project] = "Example",
-  c[:mailto] = "<adam@hjksolutions.com>",
+  c[:mailto] = "<noreply@example.com>",
   c[:mailfrom] = "<noreply@example.com>",
   c[:framework]           = {},
   c[:session_store]       = 'none',
