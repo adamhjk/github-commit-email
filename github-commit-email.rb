@@ -72,7 +72,7 @@ Commit Message:
 
 #{commit['message']}
 
-=== Diff ===
+Diff:
 
 EOH
       begin
@@ -87,7 +87,7 @@ EOH
       end
       m = Merb::Mailer.new(
             :to => Merb::Config[:mailto],
-            :from => "Commit from #{ch['repository']['owner']['name'].pluralize} #{ch['repository']['name']} #{Merb::Config[:mailfrom]}",
+            :from => "Commit in #{ch['repository']['owner']['name']} #{ch['repository']['name']} #{Merb::Config[:mailfrom]}",
             :subject => subject,
             :text => body
           )
