@@ -87,12 +87,12 @@ EOH
             body << line
           end
         end
-      rescue
-        body << "Cannot fetch diff!"
+      rescue 
+        body << "Cannot fetch diff!\n\n#{$!}"
       end
       m = Merb::Mailer.new(
             :to => Merb::Config[:mailto],
-            :from => "#{ch['repository']['owner']['name'].pluralize} #{ch['repository']['name']} #{Merb::Config[:mailfrom]}",
+            :from => "Commit Bot for #{ch['repository']['owner']['name'].pluralize} #{ch['repository']['name']} repo #{Merb::Config[:mailfrom]}",
             :subject => subject,
             :text => body
           )
