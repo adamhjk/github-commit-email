@@ -65,9 +65,14 @@ EOH
       body << <<-EOH
 #{gitsha}
   Author: #{commit['author']['name']} (#{commit['author']['email']})
-  Commit Message: #{commit['message']}
   URL: #{commit['url']}
   Timestamp: #{commit['timestamp']}
+  
+Commit Message:
+
+#{commit['message']}
+
+=== Diff ===
 
 EOH
       begin
