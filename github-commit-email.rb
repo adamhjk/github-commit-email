@@ -54,31 +54,20 @@ class Commit < Merb::Controller
   def create
     ch = JSON.parse(params[:payload])
     ch['commits'].each do |gitsha, commit|
-      first_line = commit['message'].split("\n")[0]
-      subject = "Commit: #{first_line}"
+      subject = commit['message'].split("\n")[0]
       body = <<-EOH
-=== Repository Information ===
-
-Name: #{ch['repository']['name']}
+Repository Name: #{ch['repository']['name']}
 Owner: #{ch['repository']['owner']['name']} (#{ch['repository']['owner']['email']})
 URL: #{ch['repository']['url']}
-Before Commit: #{ch['before']}
-After Commit: #{ch['after']}
 Ref: #{ch['ref']}      
 
-=== Commit ===
-
 EOH
-      subject = ""
-        subject = commit['message'].split("\n")[0]
-        body << <<-EOH
+      body << <<-EOH
 #{gitsha}
   Author: #{commit['author']['name']} (#{commit['author']['email']})
   Commit Message: #{commit['message']}
   URL: #{commit['url']}
   Timestamp: #{commit['timestamp']}
-
-=== Diff ===
 
 EOH
       begin
