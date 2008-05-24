@@ -83,7 +83,7 @@ EOH
 EOH
       begin
         open(commit['url'] + ".diff") do |f|
-          f.foreach do |line|
+          f.each do |line|
             body << line
           end
         end
@@ -93,7 +93,7 @@ EOH
       end
       m = Merb::Mailer.new(
             :to => Merb::Config[:mailto],
-            :from => "Commit Bot for #{ch['repository']['owner']['name'].pluralize} #{ch['repository']['name']} repo #{Merb::Config[:mailfrom]}",
+            :from => "Commit from #{ch['repository']['owner']['name'].pluralize} #{ch['repository']['name']} #{Merb::Config[:mailfrom]}",
             :subject => subject,
             :text => body
           )
