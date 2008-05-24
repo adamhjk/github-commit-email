@@ -19,11 +19,12 @@
 
 require 'rubygems'
 require 'json'
+require 'open-uri'
 
 Merb::Config.use { |c|
   c[:project] = "Example",
-  c[:mailto] = "<adam@example.com>",
-  c[:mailfrom] = "Commit Bot <noreply@example.com>",
+  c[:mailto] = "<adam@hjksolutions.com>",
+  c[:mailfrom] = "<noreply@example.com>",
   c[:framework]           = {},
   c[:session_store]       = 'none',
   c[:exception_details]   = true
@@ -45,13 +46,17 @@ end
 class Commit < Merb::Controller
   
   def index
-    "I accept github post-commits and relay them.  POST to /commit"
+    results =  "I accept github post-commits for #{Merb::Config[:project]}"
+    results << " and relay them to #{Merb::Config[:mailto]}.  POST to /commit."
+    results
   end  
   
   def create
     ch = JSON.parse(params[:payload])
-    subject = "Commit to #{ch['repository']['owner']['name'].pluralize} #{ch['repository']['name']}"
-    body = <<-EOH
+    ch['commits'].each do |gitsha, commit|
+      first_line = commit['message'].split("\n")[0]
+      subject = "Commit: #{first_line}"
+      body = <<-EOH
 === Repository Information ===
 
 Name: #{ch['repository']['name']}
@@ -61,27 +66,39 @@ Before Commit: #{ch['before']}
 After Commit: #{ch['after']}
 Ref: #{ch['ref']}      
 
-=== Commits ===
+=== Commit ===
 
 EOH
-    ch['commits'].each do |gitsha, commit|
-      body << <<-EOH
+      subject = ""
+        subject = commit['message'].split("\n")[0]
+        body << <<-EOH
 #{gitsha}
   Author: #{commit['author']['name']} (#{commit['author']['email']})
   Commit Message: #{commit['message']}
   URL: #{commit['url']}
   Timestamp: #{commit['timestamp']}
-  
+
+=== Diff ===
+
 EOH
+      begin
+        open(commit['url'] + ".diff") do |f|
+          f.foreach do |line|
+            body << line
+          end
+        end
+      rescue
+        body << "Cannot fetch diff!"
+      end
+      m = Merb::Mailer.new(
+            :to => Merb::Config[:mailto],
+            :from => "#{ch['repository']['owner']['name'].pluralize} #{ch['repository']['name']} #{Merb::Config[:mailfrom]}",
+            :subject => subject,
+            :text => body
+          )
+      m.deliver!
     end
-    m = Merb::Mailer.new(
-          :to => Merb::Config[:mailto],
-          :from => Merb::Config[:mailfrom],
-          :subject => subject,
-          :text => body
-        )
-    m.deliver!
-    "#{subject}\n\n#{body}" 
+    "Commit Sent"
   end
 end
 
